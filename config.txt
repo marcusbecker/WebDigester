@@ -1,0 +1,3 @@
+ignore=!DOCTYPE
+ignore=![CDATA[
+normalize=![CDATA[,]]

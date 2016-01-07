@@ -34,7 +34,11 @@ public class Core {
 
         if (path == null) {
             try {
-                sc = new Scanner(new File("config.txt"));
+                File f = new File("config.txt");
+
+                if (f.exists()) {
+                    sc = new Scanner(f);
+                }
             } catch (FileNotFoundException ex) {
                 log.log(Level.SEVERE, null, ex);
             }
@@ -63,29 +67,34 @@ public class Core {
      *
      * @param content html to parser
      */
-    public static List<Element> digester(String content) {
+    public static List<Element> digester(StringBuilder content) {
         //Map<String, List<Element>> values = new HashMap<String, List<Element>>();
         Element el;
-        List<Element> lst = new ArrayList<Element>(100);
-        StringBuilder sb = new StringBuilder(content);
+        List<Element> lst = new ArrayList<Element>(300);
 
         try {
-            int start = sb.indexOf(TAG_OPEN);
+            int start = content.indexOf(TAG_OPEN);
+            int end;
+            int close;
+
+            String body;
+            String paramBody;
+            boolean isClosed;
+
+            String paramName;
+
             while (start > -1) {
-                if (sb.substring(start, start + TAG_OPEN_CLOSE.length()).equals(TAG_OPEN_CLOSE)) {
-                    start = sb.indexOf(TAG_OPEN, start + 1);
+                if (content.substring(start, start + TAG_OPEN_CLOSE.length()).equals(TAG_OPEN_CLOSE)) {
+                    start = content.indexOf(TAG_OPEN, start + 1);
                     continue;
                 }
 
-                int end = 0;
-                int close = sb.indexOf(TAG_CLOSE, start + 1);
+                end = 0;
+                close = content.indexOf(TAG_CLOSE, start + 1);
 
-                String body = null;
-                String paramBody = sb.substring(start + TAG_OPEN.length(), close);
-                paramBody = paramBody.trim();
-                boolean isClosed = paramBody.endsWith("/");
-
-                String paramName;
+                body = null;
+                paramBody = content.substring(start + TAG_OPEN.length(), close).trim();
+                isClosed = paramBody.endsWith("/");
 
                 if (paramBody.indexOf(SPACE) > 0) {
                     paramName = paramBody.substring(0, paramBody.indexOf(SPACE));
@@ -102,21 +111,21 @@ public class Core {
                 if (isClosed) {
                     end = 0;//sb.indexOf(TAG_END_CLOSE, start);
                 } else {
-                    if (sb.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
+                    if (content.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
                         //System.out.println("end : " + TAG_OPEN_CLOSE + paramName);
-                        end = sb.indexOf(TAG_OPEN_CLOSE + paramName);
+                        end = content.indexOf(TAG_OPEN_CLOSE + paramName);
                     }
                 }
 
                 if (end > start) {
-                    body = sb.substring(close + TAG_CLOSE.length(), end);
+                    body = content.substring(close + TAG_CLOSE.length(), end);
                 }
 
-                start = sb.indexOf(TAG_OPEN, start + 1);
+                start = content.indexOf(TAG_OPEN, start + 1);
 
                 if (ignore.contains(paramName)) {
-                    System.out.println("ignored: " + paramName);
-                    System.out.println();
+                    //System.out.println("ignored: " + paramName);
+                    //System.out.println();
                     continue;
                 }
 
@@ -125,7 +134,6 @@ public class Core {
                 //System.out.println("selfClosed " + isClosed);
                 //System.out.println("body:\n" + (body != null ? body : "No body"));
                 //System.out.println();
-
                 el = new Element();
                 el.setBody(body);
                 el.setName(paramName);
@@ -133,7 +141,6 @@ public class Core {
 
                 //el.showParams();
                 //System.out.println(el);
-
                 lst.add(el);
 
             }
@@ -149,18 +156,17 @@ public class Core {
      *
      * @param content html to parser
      */
-    public static void smartDigester(String content) {
+    public static void smartDigester(StringBuilder content) {
         //Map<String, List<Element>> values = new HashMap<String, List<Element>>();
-        StringBuilder sb = new StringBuilder(content);
         StringBuilder temp = new StringBuilder(100);
 
-        int start = sb.indexOf(TAG_OPEN);
+        int start = content.indexOf(TAG_OPEN);
         while (start > -1) {
             int end = 0;
-            int close = sb.indexOf(TAG_CLOSE, start + 1);// + ">".length();
+            int close = content.indexOf(TAG_CLOSE, start + 1);// + ">".length();
 
-            boolean isClosed = sb.substring(close - 1, close).equals(TAG_END_CLOSE);
-            String param = sb.substring(start + TAG_OPEN.length(), close);
+            boolean isClosed = content.substring(close - 1, close).equals(TAG_END_CLOSE);
+            String param = content.substring(start + TAG_OPEN.length(), close);
             param = param.trim();
             String paramName = param.indexOf(SPACE) > 0 ? param.substring(0, param.indexOf(SPACE)) : param;
 
@@ -169,20 +175,20 @@ public class Core {
             System.out.println("paramName " + paramName);
 
             if (isClosed) {
-                end = sb.indexOf(TAG_END_CLOSE);
+                end = content.indexOf(TAG_END_CLOSE);
             } else {
-                if (sb.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
+                if (content.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
                     System.out.println("end : " + TAG_OPEN_CLOSE + paramName);
-                    end = sb.indexOf(TAG_OPEN_CLOSE + paramName);
+                    end = content.indexOf(TAG_OPEN_CLOSE + paramName);
                 }
             }
 
             if (end > start) {
-                System.out.println("body:\n" + sb.substring(close + TAG_CLOSE.length(), end));
+                System.out.println("body:\n" + content.substring(close + TAG_CLOSE.length(), end));
             } else {
                 System.out.println("no body");
             }
-            start = sb.indexOf(TAG_OPEN, start + 1);
+            start = content.indexOf(TAG_OPEN, start + 1);
         }
     }
 }

@@ -47,9 +47,9 @@ public class Element {
                 String[] keyValue = a.split("=");
                 if (keyValue.length == 2) {
                     String key = keyValue[0].trim().toLowerCase();
-                    String valueTrim = keyValue[1].substring(1, keyValue[1].length() - 1);
+                    String value = keyValue[1].substring(1, keyValue[1].length() - 1);
 
-                    params.put(key, valueTrim);
+                    params.put(key, value);
                 }
             }
         }

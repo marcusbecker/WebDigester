@@ -26,13 +26,13 @@ public class ProcessSelect implements IProcessor<List<Element>, Void> {
 
         String[] arr = cmd.split(" ");
         //String s = arr.length > 0 ? arr[0] : null;//Select
-        String f = arr.length > 1 ? arr[1] : null;//*
-        String w = arr.length > 2 ? arr[2] : null;//where
-        String fw = arr.length > 3 ? arr[3] : null;//foo
+        String fields = arr.length > 1 ? arr[1] : null;//*
+        String where = arr.length > 2 ? arr[2] : null;//where
+        String fieldWhere = arr.length > 3 ? arr[3] : null;//foo
         String eq = arr.length > 4 ? arr[4] : null;//=
-        String fv = arr.length > 5 ? arr[5] : null;//bar
+        String whereValue = arr.length > 5 ? arr[5] : null;//bar
 
-        this.select = new Select(f, fw, fv);
+        this.select = new Select(fields, fieldWhere, whereValue);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ProcessSelect implements IProcessor<List<Element>, Void> {
         if (select.getRestrictionValue().isEmpty()) {
             return temp;
         } else {
-            List<Element> filter = new ArrayList<Element>(temp.size());
+            List<Element> filter = new ArrayList<>(temp.size());
 
             String restriction = select.getRestrictionValue().replaceAll("\'", "");
             int type = -1;
@@ -111,7 +111,7 @@ public class ProcessSelect implements IProcessor<List<Element>, Void> {
         }
 
         public String getRestrictionValue() {
-            return restrictionValue;
+            return restrictionValue == null ? "" : restrictionValue;
         }
 
         public void setRestrictionValue(String restrictionValue) {

@@ -21,11 +21,12 @@ import java.util.Set;
  */
 public class ScriptCore {
 
-    private static IProcessor pPage = new ProcessPage();
-    private static IProcessor pSelect = new ProcessSelect();
+    private static final IProcessor pPage = new ProcessPage();
+    private static final IProcessor pSelect = new ProcessSelect();
 
-    public static List<Element> process(final String script) {
+    public static List<Element> process(final String script, final IProcessProgress pp) {
         new Thread() {
+            @Override
             public void run() {
                 Scanner sc = new Scanner(script);
 
@@ -38,8 +39,8 @@ public class ScriptCore {
                     if (ln.startsWith("page")) {
                         String cmd = getCommand("page", ln);
                         StringBuilder c = ((ProcessPage) pPage).process(cmd);
-                        elements = Core.digester(c.toString());
-                        cache = index(elements, cache);
+                        elements = Core.digester(c);
+                        cache = getIndex(elements, cache);
 
                     } else if (ln.startsWith("select")) {
                         //select a where href = '%.zip'
@@ -58,19 +59,44 @@ public class ScriptCore {
                     }
                 }
 
-                
             }
         }.start();
-        
-        return null;
 
+        return null;
+    }
+
+    public static List<Element> process(final String script) {
+
+        Scanner sc = new Scanner(script);
+
+        List<Element> elements = Collections.EMPTY_LIST;
+        Map<String, List<Element>> cache = null;
+
+        while (sc.hasNext()) {
+            String ln = sc.nextLine();
+
+            if (ln.startsWith("page")) {
+                String cmd = getCommand("page", ln);
+                StringBuilder c = ((ProcessPage) pPage).process(cmd);
+                elements = Core.digester(c);
+                cache = getIndex(elements, cache);
+
+            } else if (ln.startsWith("select")) {
+                //select a where href = '%.zip'
+                ProcessSelect ps = (ProcessSelect) pSelect;
+                ps.prepare(ln, elements, cache);
+                elements = ps.process(null);
+            }
+        }
+
+        return elements;
     }
 
     private static String getCommand(String action, String ln) {
         return ln.substring(action.length()).trim();
     }
 
-    private static Map<String, List<Element>> index(List<Element> elements, Map<String, List<Element>> cache) {
+    private static Map<String, List<Element>> getIndex(List<Element> elements, Map<String, List<Element>> cache) {
         if (cache == null) {
             cache = new HashMap<String, List<Element>>(20);
         }

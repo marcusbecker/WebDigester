@@ -70,7 +70,7 @@ public class Core {
     public static List<Element> digester(StringBuilder content) {
         //Map<String, List<Element>> values = new HashMap<String, List<Element>>();
         Element el;
-        List<Element> lst = new ArrayList<Element>(300);
+        List<Element> lst = new ArrayList<>(300);
 
         try {
             int start = content.indexOf(TAG_OPEN);

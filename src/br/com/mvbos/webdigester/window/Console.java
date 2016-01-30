@@ -65,7 +65,7 @@ public class Console extends javax.swing.JFrame {
 
         jScrollPane3.setViewportView(tfBody);
 
-        jTabbedPane1.addTab("Body Tag", jScrollPane3);
+        jTabbedPane1.addTab("Tag Body", jScrollPane3);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);

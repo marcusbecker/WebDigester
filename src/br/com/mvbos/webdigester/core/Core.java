@@ -7,8 +7,10 @@ package br.com.mvbos.webdigester.core;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.logging.Level;
@@ -26,7 +28,7 @@ public class Core {
     private static final String TAG_OPEN = "<";
     private static final String TAG_OPEN_CLOSE = "</";
     public static boolean ignoreComments = true;
-    private static Set<String> ignore = new HashSet<String>(0);
+    private static Set<String> ignore = new HashSet<>(0);
     private static final Logger log = Logger.getLogger(Core.class.getName());
 
     public static void config(String path) {
@@ -48,7 +50,7 @@ public class Core {
             return;
         }
 
-        ignore = new HashSet<String>(5);
+        ignore = new HashSet<>(5);
 
         while (sc.hasNext()) {
             String ln = sc.nextLine();
@@ -68,7 +70,8 @@ public class Core {
      * @param content html to parser
      */
     public static List<Element> digester(StringBuilder content) {
-        //Map<String, List<Element>> values = new HashMap<String, List<Element>>();
+        // Map<String, List<Element>> values = new HashMap<String,
+        // List<Element>>();
         Element el;
         List<Element> lst = new ArrayList<>(300);
 
@@ -109,10 +112,11 @@ public class Core {
                 paramBody = paramBody.substring(paramName.length());
 
                 if (isClosed) {
-                    end = 0;//sb.indexOf(TAG_END_CLOSE, start);
+                    end = 0;// sb.indexOf(TAG_END_CLOSE, start);
                 } else {
                     if (content.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
-                        //System.out.println("end : " + TAG_OPEN_CLOSE + paramName);
+                        // System.out.println("end : " + TAG_OPEN_CLOSE +
+                        // paramName);
                         end = content.indexOf(TAG_OPEN_CLOSE + paramName);
                     }
                 }
@@ -124,23 +128,24 @@ public class Core {
                 start = content.indexOf(TAG_OPEN, start + 1);
 
                 if (ignore.contains(paramName)) {
-                    //System.out.println("ignored: " + paramName);
-                    //System.out.println();
+                    // System.out.println("ignored: " + paramName);
+                    // System.out.println();
                     continue;
                 }
 
-                //System.out.println("paramName " + paramName);
-                //System.out.println("paramBody " + paramBody);
-                //System.out.println("selfClosed " + isClosed);
-                //System.out.println("body:\n" + (body != null ? body : "No body"));
-                //System.out.println();
+                // System.out.println("paramName " + paramName);
+                // System.out.println("paramBody " + paramBody);
+                // System.out.println("selfClosed " + isClosed);
+                // System.out.println("body:\n" + (body != null ? body :
+                // "No body"));
+                // System.out.println();
                 el = new Element();
                 el.setBody(body);
                 el.setName(paramName);
                 el.setParam(paramBody);
 
-                //el.showParams();
-                //System.out.println(el);
+                // el.showParams();
+                // System.out.println(el);
                 lst.add(el);
 
             }
@@ -157,8 +162,9 @@ public class Core {
      * @param content html to parser
      */
     public static void smartDigester(StringBuilder content) {
-        //Map<String, List<Element>> values = new HashMap<String, List<Element>>();
-        StringBuilder temp = new StringBuilder(100);
+        // Map<String, List<Element>> values = new HashMap<String,
+        // List<Element>>();
+        //StringBuilder temp = new StringBuilder(100);
 
         int start = content.indexOf(TAG_OPEN);
         while (start > -1) {
@@ -190,5 +196,67 @@ public class Core {
             }
             start = content.indexOf(TAG_OPEN, start + 1);
         }
+    }
+
+    public synchronized static Map<String, String> parseStringAttributesToMap(final String param) {
+        String tag = null;
+        String content = null;
+        char delimiterIni = '\0';
+        char[] arr = param.toCharArray();
+        final StringBuilder temp = new StringBuilder(20);
+
+        Map<String, String> params = null;
+
+        for (int i = 0; i < arr.length; i++) {
+            if (tag == null) {
+                if ('=' == arr[i]) {
+                    tag = temp.toString();
+                    temp.delete(0, temp.length());
+
+                } else {
+                    temp.append(arr[i]);
+                }
+
+            } else if ('\0' == delimiterIni) {
+                if (arr[i] != ' ') {
+                    // expected ' or "
+                    delimiterIni = arr[i];
+                }
+
+            } else if (content == null) {
+                // ignore escape characters \' or \"
+                if (delimiterIni == arr[i] && arr[i - 1] != '\\') {
+                    content = temp.toString();
+                    temp.delete(0, temp.length());
+
+                } else {
+                    temp.append(arr[i]);
+                }
+
+            } else {
+
+                if (params == null) {
+                    params = new HashMap<>(5);
+                }
+
+                params.put(tag.trim().toLowerCase(), content.trim());
+
+                tag = null;
+                content = null;
+                delimiterIni = '\0';
+                temp.delete(0, temp.length());
+            }
+        }
+
+        //try to add invalid tag
+        if (tag != null && temp.length() > 0) {
+            if (params == null) {
+                params = new HashMap<>(1);
+            }
+
+            params.put(tag.trim().toLowerCase(), content.trim());
+        }
+
+        return params;
     }
 }

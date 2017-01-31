@@ -4,7 +4,7 @@
  */
 package br.com.mvbos.webdigester.core;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -40,18 +40,11 @@ public class Element {
 
     public Map<String, String> getParams() {
         if (params == null && param != null) {
-            String[] arr = param.trim().split(" ");
-            params = new HashMap<String, String>(arr.length);
+            params = Core.parseStringAttributesToMap(param);
+        }
 
-            for (String a : arr) {
-                String[] keyValue = a.split("=");
-                if (keyValue.length == 2) {
-                    String key = keyValue[0].trim().toLowerCase();
-                    String value = keyValue[1].substring(1, keyValue[1].length() - 1);
-
-                    params.put(key, value);
-                }
-            }
+        if (params == null) {
+            params = Collections.emptyMap();
         }
 
         return params;

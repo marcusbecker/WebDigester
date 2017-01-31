@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +24,7 @@ public class FileUtil {
     public static StringBuilder load(String fileName) {
         StringBuilder sb = new StringBuilder(500);
         File f = new File(fileName);
-        
+
         if (f.exists() && f.isFile()) {
             InputStreamReader is;
             BufferedReader reader = null;
@@ -36,7 +35,7 @@ public class FileUtil {
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    sb.append(line).append(System.getProperty("line.separator"));
+                    sb.append(line).append(System.lineSeparator());
                 }
 
             } catch (FileNotFoundException ex) {

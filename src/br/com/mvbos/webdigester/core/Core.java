@@ -69,9 +69,7 @@ public class Core {
      *
      * @param content html to parser
      */
-    public static List<Element> digester(StringBuilder content) {
-        // Map<String, List<Element>> values = new HashMap<String,
-        // List<Element>>();
+    public synchronized static List<Element> digester(StringBuilder content) {
         Element el;
         List<Element> lst = new ArrayList<>(300);
 
@@ -115,7 +113,7 @@ public class Core {
                     end = 0;// sb.indexOf(TAG_END_CLOSE, start);
                 } else {
                     if (content.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
-                        // System.out.println("end : " + TAG_OPEN_CLOSE +
+						// System.out.println("end : " + TAG_OPEN_CLOSE +
                         // paramName);
                         end = content.indexOf(TAG_OPEN_CLOSE + paramName);
                     }
@@ -128,24 +126,14 @@ public class Core {
                 start = content.indexOf(TAG_OPEN, start + 1);
 
                 if (ignore.contains(paramName)) {
-                    // System.out.println("ignored: " + paramName);
-                    // System.out.println();
                     continue;
                 }
 
-                // System.out.println("paramName " + paramName);
-                // System.out.println("paramBody " + paramBody);
-                // System.out.println("selfClosed " + isClosed);
-                // System.out.println("body:\n" + (body != null ? body :
-                // "No body"));
-                // System.out.println();
                 el = new Element();
                 el.setBody(body);
                 el.setName(paramName);
                 el.setParam(paramBody);
 
-                // el.showParams();
-                // System.out.println(el);
                 lst.add(el);
 
             }
@@ -162,10 +150,6 @@ public class Core {
      * @param content html to parser
      */
     public static void smartDigester(StringBuilder content) {
-        // Map<String, List<Element>> values = new HashMap<String,
-        // List<Element>>();
-        //StringBuilder temp = new StringBuilder(100);
-
         int start = content.indexOf(TAG_OPEN);
         while (start > -1) {
             int end = 0;
@@ -248,8 +232,8 @@ public class Core {
             }
         }
 
-        //try to add invalid tag
-        if (tag != null && temp.length() > 0) {
+        // try to add invalid tag
+        if (tag != null && content != null) {
             if (params == null) {
                 params = new HashMap<>(1);
             }

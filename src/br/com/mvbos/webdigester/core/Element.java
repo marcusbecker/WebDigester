@@ -52,7 +52,7 @@ public class Element {
 
     @Override
     public String toString() {
-        return "Element{" + "name=" + name + ", param=" + param + ", body=" + body + '}';
+        return "Element{" + "name=" + name + ", param='" + param + "', body=" + body + '}';
     }
 
     public void showParams() {

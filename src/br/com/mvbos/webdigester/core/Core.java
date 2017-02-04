@@ -113,8 +113,6 @@ public class Core {
                     end = 0;// sb.indexOf(TAG_END_CLOSE, start);
                 } else {
                     if (content.indexOf(TAG_OPEN_CLOSE + paramName) > 0) {
-						// System.out.println("end : " + TAG_OPEN_CLOSE +
-                        // paramName);
                         end = content.indexOf(TAG_OPEN_CLOSE + paramName);
                     }
                 }
